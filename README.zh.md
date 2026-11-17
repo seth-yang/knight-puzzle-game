@@ -2,6 +2,8 @@
 
 纯前端（HTML / CSS / JavaScript）实现的骑士棋盘逻辑谜题，无任何第三方依赖。
 
+在线访问: [Github Pages](https://seth-yang.github.io/knight-puzzle-game/knight-puzzle-game.html)
+
 [English](README.md)
 
 ## 游戏规则

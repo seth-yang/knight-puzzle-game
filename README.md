@@ -2,6 +2,8 @@
 
 A knight puzzle game built with plain HTML, CSS and JavaScript — no third-party dependencies.
 
+online visit: [GitHub Pages](https://seth-yang.github.io/knight-puzzle-game/knight-puzzle-game.html)
+
 [简体中文](README.zh.md)
 
 ## Rules
