@@ -76,8 +76,8 @@ knight-puzzle-game/
 │   ├── i18n.js               # Language pack loading and switching
 │   ├── zh_CN.js              # Simplified Chinese pack
 │   └── en_US.js              # English pack (fallback)
-├── README.md                 # Chinese documentation
-├── README.en.md              # English documentation
+├── README.md                 # English documentation
+├── README.zh.md              # Chinese documentation
 └── LICENSE                   # MIT License
 ```
 
