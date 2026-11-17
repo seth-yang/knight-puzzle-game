@@ -1,0 +1,444 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --cell: 60px;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+body {
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: #f2f0fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(10px, 2vw, 20px);
+    overflow-y: auto;
+    min-height: 100dvh;
+}
+
+h1 {
+    color: #3b3b58;
+    margin-bottom: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(18px, 3.2vw, 24px);
+    text-align: center;
+}
+
+.rules {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
+    background: #fff;
+    border: 2px solid #7e97e8;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: clamp(8px, 1.6vw, 16px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+}
+
+.rule {
+    flex: 1 1 auto;
+    padding: clamp(8px, 1.6vw, 12px) clamp(10px, 2vw, 20px);
+    font-size: clamp(11px, 2.3vw, 14px);
+    font-weight: 600;
+    color: #3b3b58;
+    text-align: center;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rule + .rule {
+    border-left: 2px dashed #c5cbe8;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 1.5vw, 12px);
+    max-width: 100%;
+    margin-bottom: clamp(8px, 1.6vw, 16px);
+    background: #fff;
+    padding: clamp(8px, 1.5vw, 10px) clamp(10px, 2vw, 18px);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+}
+
+.toolbar label {
+    font-size: clamp(12px, 2.2vw, 14px);
+    color: #3b3b58;
+    font-weight: 600;
+}
+
+.toolbar input,
+.toolbar select {
+    padding: 6px 8px;
+    font-size: clamp(12px, 2.4vw, 15px);
+    border: 2px solid #c5cbe8;
+    border-radius: 8px;
+    text-align: center;
+    background: #fff;
+    color: #3b3b58;
+    font-family: inherit;
+    cursor: pointer;
+    min-height: 40px;
+}
+
+.toolbar input {
+    width: clamp(96px, 22vw, 130px);
+    cursor: text;
+}
+
+.toolbar button {
+    padding: 8px clamp(10px, 2vw, 18px);
+    font-size: clamp(12px, 2.4vw, 14px);
+    font-weight: 600;
+    background: #7e97e8;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    min-height: 44px;
+    transition: background .2s;
+}
+
+.toolbar button:hover {
+    background: #5b7add;
+}
+
+.status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 16px);
+    margin-bottom: clamp(8px, 1.5vw, 14px);
+    font-size: clamp(13px, 2.5vw, 16px);
+    color: #3b3b58;
+    font-weight: 600;
+    min-height: 28px;
+    text-align: center;
+}
+
+.hearts {
+    font-size: clamp(16px, 3vw, 20px);
+    letter-spacing: 4px;
+}
+
+.timer {
+    font-variant-numeric: tabular-nums;
+    background: #fff;
+    border: 2px solid #c5cbe8;
+    border-radius: 10px;
+    padding: 2px 10px;
+    min-width: 84px;
+}
+
+.board-wrap {
+    display: flex;
+    gap: 6px;
+    max-width: 100%;
+}
+
+.row-nums {
+    display: grid;
+    gap: 4px;
+    align-items: stretch;
+    font-size: clamp(12px, 2.6vw, 18px);
+    font-weight: 600;
+    color: #3b3b58;
+}
+
+.row-nums div {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 4px;
+}
+
+.board {
+    display: grid;
+    gap: 4px;
+    background: transparent;
+}
+
+.cell {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: clamp(5px, 1.2vw, 8px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--cell) * .55);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none; /* 允许在格子上拖动标注，不触发页面滚动 */
+    transition: transform .1s, filter .2s;
+    position: relative;
+}
+
+@media (hover: hover) {
+    .cell:hover:not(.used):not(.wrong) {
+        transform: scale(1.06);
+        filter: brightness(1.05);
+    }
+}
+
+/* 两种 X 共用同一字形，仅颜色不同 */
+.cell .mark,
+.cell.wrong::after {
+    font-size: calc(var(--cell) * .5);
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+    pointer-events: none;
+}
+
+.cell .mark {
+    color: #fff; /* 用户单击标注：白色 */
+}
+
+.cell.used {
+    cursor: default;
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .8);
+}
+
+.cell.preset {
+    box-shadow: inset 0 0 0 3px rgba(255, 215, 90, .95);
+}
+
+.cell.wrong {
+    cursor: not-allowed;
+    box-shadow: inset 0 0 0 999px rgba(25, 25, 40, .38);
+}
+
+.cell.wrong::after {
+    content: "✕";
+    color: #ff3b30; /* 系统判错：红色 */
+}
+
+.cell.done {
+    animation: pop .3s ease;
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(.6);
+    }
+    60% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.col-nums {
+    display: grid;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: clamp(12px, 2.6vw, 18px);
+    font-weight: 600;
+    color: #3b3b58;
+}
+
+.col-nums div {
+    text-align: center;
+}
+
+.message {
+    margin-top: clamp(8px, 1.6vw, 16px);
+    font-size: clamp(13px, 2.8vw, 18px);
+    font-weight: 700;
+    min-height: 26px;
+    max-width: 100%;
+    text-align: center;
+}
+
+.message.win {
+    color: #2e9e5b;
+}
+
+.message.lose {
+    color: #d84a3a;
+}
+
+/* 结局弹框 */
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(30, 30, 50, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.dialog {
+    background: #fff;
+    border-radius: 20px;
+    padding: clamp(20px, 4vw, 32px);
+    width: min(92vw, 400px);
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, .25);
+}
+
+.dialog-icon {
+    font-size: clamp(36px, 8vw, 52px);
+}
+
+.dialog h2 {
+    font-size: clamp(20px, 4vw, 26px);
+    color: #3b3b58;
+    margin: 8px 0;
+}
+
+.dialog p {
+    font-size: clamp(13px, 2.6vw, 15px);
+    color: #666a85;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    word-break: break-word;
+}
+
+.dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.dialog-actions button {
+    flex: 1 1 auto;
+    min-width: 96px;
+    min-height: 46px;
+    padding: 10px 14px;
+    font-size: clamp(13px, 2.6vw, 15px);
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+#retryBtn {
+    background: #7e97e8;
+    color: #fff;
+}
+
+#newGameBtn {
+    background: #2e9e5b;
+    color: #fff;
+}
+
+#cancelBtn {
+    background: #eceaf6;
+    color: #3b3b58;
+}
+
+#answerBtn {
+    background: #9575cd;
+}
+
+/* 右下角答案缩略图 */
+.answer-panel {
+    position: fixed;
+    right: clamp(8px, 2vw, 16px);
+    bottom: clamp(8px, 2vw, 16px);
+    z-index: 40;
+    background: #fff;
+    border: 2px solid #7e97e8;
+    border-radius: 14px;
+    padding: 10px;
+    max-width: 90vw;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .2);
+}
+
+.answer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: clamp(11px, 2.2vw, 13px);
+    font-weight: 700;
+    color: #3b3b58;
+}
+
+.answer-close {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 8px;
+    background: #eceaf6;
+    color: #3b3b58;
+    font-size: 14px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.answer-grid {
+    display: grid;
+    gap: 2px;
+}
+
+.answer-cell {
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    user-select: none;
+}
+
+@media (max-width: 620px) {
+    .rules {
+        flex-direction: column;
+    }
+
+    .rule + .rule {
+        border-left: none;
+        border-top: 2px dashed #c5cbe8;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+    body {
+        padding: 8px;
+    }
+
+    h1 {
+        display: none;
+    }
+
+    .rules,
+    .toolbar,
+    .status {
+        margin-bottom: 8px;
+    }
+
+    .rule {
+        padding: 6px 12px;
+    }
+
+    .toolbar {
+        padding: 6px 10px;
+    }
+
+    .message {
+        margin-top: 8px;
+    }
+}
