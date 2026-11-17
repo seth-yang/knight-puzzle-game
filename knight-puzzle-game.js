@@ -98,13 +98,16 @@
         updateTimer ();
     }
 
-    // 依据视口宽高（横屏/竖屏）计算格子尺寸
+    // 依据视口宽高（横屏/竖屏）与布局模式计算格子尺寸
     function fitBoard () {
         const vw = typeof window !== "undefined" ? window.innerWidth : 800;
         const vh = typeof window !== "undefined" ? window.innerHeight : 600;
         const landscape = vw > vh;
-        const chromeH = Math.min (landscape ? 340 : 400, vh * .45);
-        const sideW = landscape ? 90 : 64;
+        const split = typeof window !== "undefined" && window.matchMedia
+            && window.matchMedia ("(min-width: 1024px)").matches;
+        // 左右分栏后顶部内容移到左列，纵向空间可多给棋盘；横向需为左列留出宽度
+        const chromeH = Math.min (split ? 120 : (landscape ? 340 : 400), vh * .45);
+        const sideW = split ? Math.min (540, Math.max (360, vw * .38)) : (landscape ? 90 : 64);
         const size = Math.max (24, Math.floor (Math.min (
             (vw - sideW) / N - 4,
             (vh - chromeH) / N - 4,

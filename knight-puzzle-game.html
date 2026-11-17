@@ -8,6 +8,7 @@
     <script src="lang/i18n.js"></script>
 </head>
 <body>
+<div class="top-panel">
 <h1 data-i18n="h1Title">🐴 小马棋盘益智游戏</h1>
 
 <div class="rules">
@@ -54,7 +55,9 @@
     <span data-i18n="timeLabel">用时：</span><span class="timer" id="timer">⏱ 00:00</span>
     <span id="progress"></span>
 </div>
+</div>
 
+<div class="main-panel">
 <div class="board-wrap">
     <div class="row-nums" id="rowNums"></div>
     <div>
@@ -64,6 +67,7 @@
 </div>
 
 <div class="message" id="message"></div>
+</div>
 
 <div class="overlay" id="overlay" hidden>
     <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
