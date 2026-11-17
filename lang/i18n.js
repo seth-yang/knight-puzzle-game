@@ -26,7 +26,7 @@
     function loadPack (lang, done) {
         if (PACKS[lang]) { done (true); return; }
         const s = document.createElement ("script");
-        s.src = lang + ".js";
+        s.src = 'lang/' + lang + ".js";
         s.onload = () => {
             const pack = (window.KNIGHT_I18N_PACKS || {})[lang];
             if (pack) { PACKS[lang] = pack; done (true); }
