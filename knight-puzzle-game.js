@@ -32,6 +32,8 @@
     const answerIdEl = document.getElementById ("answerId");
     const answerCloseEl = document.getElementById ("answerClose");
     const exportBtnEl = document.getElementById ("exportBtn");
+    const langSelectEl = document.getElementById ("langSelect");
+    const I18N = window.I18N;
 
     let rand = Math.random;    // 由局号派生的确定性随机源
     let gameId = "";
@@ -48,6 +50,7 @@
     let timerStart = 0, timerElapsed = 0, timerId = null;
     let dragState = null, ignoreClickUntil = 0, answerVisible = false;
     let generating = false, generationToken = 0;
+    let lastMessage = null, lastDialogType = null;
 
     const key = (r, c) => r + "," + c;
 
@@ -65,7 +68,7 @@
     }
 
     function updateTimer () {
-        timerEl.textContent = "⏱ " + formatTime (elapsedMs ());
+        timerEl.textContent = I18N.t ("timerPrefix") + formatTime (elapsedMs ());
     }
 
     function startTimer () {
@@ -173,7 +176,7 @@
         }
 
         const chosen = [];
-        if (!backtrack (0, chosen)) throw new Error ("无法生成满足约束的小马布局");
+        if (!backtrack (0, chosen)) throw new Error (I18N.t ("errorNoLayout"));
         return chosen; // chosen[r] = 第 r 行小马所在列
     }
 
@@ -502,7 +505,7 @@
             const board = makeUnique (n, false);
             if (board) return board;
         }
-        throw new Error ("无法生成唯一解棋盘");
+        throw new Error (I18N.t ("errorNoUnique"));
     }
 
     // ---------- 渲染与交互 ----------
@@ -695,7 +698,7 @@
             if (placed.size === N) {
                 gameOver = true;
                 stopTimer ();
-                showMessage ("🎉 游戏通过！所有小马放置正确！", "win");
+                showMessage ("msgWin", "win");
                 showDialog ("win");
             }
         } else {
@@ -706,22 +709,31 @@
             if (hp <= 0) {
                 gameOver = true;
                 stopTimer ();
-                showMessage ("💀 生命值耗尽，游戏失败！", "lose");
+                showMessage ("msgLose", "lose");
                 revealSolution ();
                 showDialog ("lose");
             } else {
-                showMessage ("❌ 这里放马会导致无解，生命值 -1", "lose");
+                showMessage ("msgWrong", "lose");
             }
         }
     }
 
-    function showDialog (type) {
-        const win = type === "win";
+    function renderDialog () {
+        if (!lastDialogType) return;
+        const win = lastDialogType === "win";
         dialogIconEl.textContent = win ? "🏆" : "💔";
-        dialogTitleEl.textContent = win ? "游戏通过！" : "游戏失败";
-        dialogTextEl.textContent = `局号 ${gameId} · 用时 ${formatTime (elapsedMs ())} · ` +
-            (win ? "全部小马放置正确！" : "生命值已耗尽，正确位置已显示在棋盘上。");
-        retryBtnEl.hidden = win;   // 通关时不显示「重新开始」
+        dialogTitleEl.textContent = I18N.t (win ? "dialogWinTitle" : "dialogLoseTitle");
+        dialogTextEl.textContent = I18N.t ("dialogMeta", {
+            id: gameId,
+            time: formatTime (elapsedMs ()),
+            result: I18N.t (win ? "dialogWinText" : "dialogLoseText")
+        });
+    }
+
+    function showDialog (type) {
+        lastDialogType = type;
+        renderDialog ();
+        retryBtnEl.hidden = type === "win";   // 通关时不显示「重新开始」
         overlayEl.hidden = false;
     }
 
@@ -745,12 +757,22 @@
     }
 
     function updateProgress () {
-        progressEl.textContent = `局号 ${gameId} · 已放置 ${placed.size} / ${N} 匹小马`;
+        progressEl.textContent = I18N.t ("progress", {id: gameId, placed: placed.size, total: N});
     }
 
-    function showMessage (text, cls) {
-        messageEl.textContent = text;
-        messageEl.className = "message" + (cls ? " " + cls : "");
+    // key 可为字符串，或 [{key, vars}, ...] 组成的分段消息
+    function showMessage (key, cls, vars) {
+        lastMessage = {key: key, cls: cls, vars: vars};
+        renderMessage ();
+    }
+
+    function renderMessage () {
+        if (!lastMessage) return;
+        const parts = Array.isArray (lastMessage.key)
+            ? lastMessage.key
+            : [{key: lastMessage.key, vars: lastMessage.vars}];
+        messageEl.textContent = parts.map (p => I18N.t (p.key, p.vars)).join (" · ");
+        messageEl.className = "message" + (lastMessage.cls ? " " + lastMessage.cls : "");
     }
 
     // 右下角答案缩略图：同色块 + 正确小马位置
@@ -779,7 +801,7 @@
     function setAnswerVisible (visible) {
         answerVisible = visible;
         answerPanelEl.hidden = !visible;
-        answerBtnEl.textContent = visible ? "隐藏答案" : "显示答案";
+        answerBtnEl.textContent = I18N.t (visible ? "hideAnswer" : "showAnswer");
     }
 
     // ---------- 导出当前棋盘为 PNG 图片 ----------
@@ -798,7 +820,7 @@
     // 不依赖第三方库：直接按棋盘状态重绘，2 倍分辨率输出
     function exportBoardImage () {
         if (generating || !N || !colorMap.length) {
-            showMessage ("棋盘尚未生成完成，请稍后再导出", "lose");
+            showMessage ("exportNotReady", "lose");
             return;
         }
         const id = gameId;   // 生成图片期间可能重新开局，先固定局号
@@ -890,15 +912,15 @@
         // 下方居中：局号
         ctx.fillStyle = "#3b3b58";
         ctx.font = `700 26px ${font}`;
-        ctx.fillText ("局号 " + id, W / 2,
+        ctx.fillText (I18N.t ("exportIdLabel") + id, W / 2,
             boardY + size + labelGap + colLabelH + footerH / 2);
 
         canvas.toBlob (blob => {
             if (!blob) {
-                showMessage ("图片生成失败，请重试", "lose");
+                showMessage ("exportFailed", "lose");
                 return;
             }
-            const fileName = `小马棋盘_${id}.png`;
+            const fileName = I18N.t ("exportFileName", {id: id});
             const url = URL.createObjectURL (blob);
             const a = document.createElement ("a");
             a.href = url;
@@ -907,7 +929,7 @@
             a.click ();
             a.remove ();
             setTimeout (() => URL.revokeObjectURL (url), 1000);
-            showMessage (`已导出图片：${fileName}`);
+            showMessage ("exportSuccess", "", {file: fileName});
         }, "image/png");
     }
 
@@ -947,7 +969,7 @@
             } else {
                 const parsed = parseGameId (raw);
                 if (!parsed) {
-                    showMessage ("局号无效：格式为 阶数(4-10)-序列号(1-1000)，如 10-056", "lose");
+                    showMessage ("msgInvalidId", "lose");
                     gameIdEl.focus ();
                     gameIdEl.select ();
                     return;
@@ -979,7 +1001,7 @@
         // 高阶棋盘生成需搜索唯一解，异步执行以便先显示提示，界面不假死
         generating = true;
         const token = ++generationToken;
-        showMessage ("正在生成棋盘…");
+        showMessage ("msgGenerating");
         setTimeout (() => {
             if (token !== generationToken) return;
             buildBoard (randomPicked);
@@ -1000,9 +1022,9 @@
         updateHearts ();
         updateProgress ();
         const tips = [];
-        if (randomPicked) tips.push (`本局局号 ${gameId}（局号留空可再随机一局）`);
-        if (preset > 0) tips.push (`已按难度预置 ${preset} 匹小马（金色边框）`);
-        showMessage (tips.join (" · "));
+        if (randomPicked) tips.push ({key: "msgRandomTips", vars: {id: gameId}});
+        if (preset > 0) tips.push ({key: "msgPresetTips", vars: {count: preset}});
+        showMessage (tips);
         generating = false;
     }
 
@@ -1051,5 +1073,23 @@
         window.addEventListener ("resize", handleResize);
         window.addEventListener ("orientationchange", () => setTimeout (handleResize, 120));
     }
-    startGame ();
+
+    langSelectEl.addEventListener ("change", () => I18N.setLanguage (langSelectEl.value));
+
+    function applyLanguageToDynamicUI () {
+        document.documentElement.lang = I18N.getLanguage ().replace ("_", "-");
+        langSelectEl.value = I18N.getLanguage ();
+        updateTimer ();
+        if (gameId) updateProgress ();
+        answerBtnEl.textContent = I18N.t (answerVisible ? "hideAnswer" : "showAnswer");
+        renderMessage ();
+        if (!overlayEl.hidden) renderDialog ();
+    }
+
+    I18N.onReady (() => {
+        I18N.applyStatic (document);
+        applyLanguageToDynamicUI ();
+        startGame ();
+    });
+    I18N.onChange (applyLanguageToDynamicUI);
 }) ();

@@ -3,47 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小马棋盘益智游戏</title>
+    <title data-i18n="appTitle">小马棋盘益智游戏</title>
     <link rel="stylesheet" href="knight-puzzle-game.css">
+    <script src="i18n.js"></script>
 </head>
 <body>
-<h1>🐴 小马棋盘益智游戏</h1>
+<h1 data-i18n="h1Title">🐴 小马棋盘益智游戏</h1>
 
 <div class="rules">
-    <div class="rule">每种颜色1匹<br>小马</div>
-    <div class="rule">每行每列均有且<br>仅有1匹小马</div>
-    <div class="rule">小马不能相邻<br>（九宫格内）</div>
+    <div class="rule" data-i18n-html="rule1">每种颜色1匹<br>小马</div>
+    <div class="rule" data-i18n-html="rule2">每行每列均有且<br>仅有1匹小马</div>
+    <div class="rule" data-i18n-html="rule3">小马不能相邻<br>（九宫格内）</div>
 </div>
 
 <div class="toolbar">
-    <label for="order">阶数：</label>
+    <label for="order" data-i18n="orderLabel">阶数：</label>
     <select id="order">
-        <option value="4">4 阶</option>
-        <option value="5">5 阶</option>
-        <option value="6" selected>6 阶</option>
-        <option value="7">7 阶</option>
-        <option value="8">8 阶</option>
-        <option value="9">9 阶</option>
-        <option value="10">10 阶</option>
+        <option value="4" data-i18n="orderOption" data-i18n-vars="n=4">4 阶</option>
+        <option value="5" data-i18n="orderOption" data-i18n-vars="n=5">5 阶</option>
+        <option value="6" selected data-i18n="orderOption" data-i18n-vars="n=6">6 阶</option>
+        <option value="7" data-i18n="orderOption" data-i18n-vars="n=7">7 阶</option>
+        <option value="8" data-i18n="orderOption" data-i18n-vars="n=8">8 阶</option>
+        <option value="9" data-i18n="orderOption" data-i18n-vars="n=9">9 阶</option>
+        <option value="10" data-i18n="orderOption" data-i18n-vars="n=10">10 阶</option>
     </select>
-    <label for="gameId">局号（可留空）：</label>
+    <label for="gameId" data-i18n="gameIdLabel">局号（可留空）：</label>
     <input id="gameId" type="text" value="" maxlength="10" placeholder="留空随机，如 10-056"
+           data-i18n-placeholder="gameIdPlaceholder" data-i18n-title="gameIdTitle"
            title="阶数 4-10，序列号 1-1000；留空则按所选阶数随机开局">
-    <label for="difficulty">难度：</label>
+    <label for="difficulty" data-i18n="difficultyLabel">难度：</label>
     <select id="difficulty">
-        <option value="easy">容易（预置 2 匹）</option>
-        <option value="medium" selected>中等（预置 1 匹）</option>
-        <option value="hard">困难（不预置）</option>
+        <option value="easy" data-i18n="easyOption">容易（预置 2 匹）</option>
+        <option value="medium" selected data-i18n="mediumOption">中等（预置 1 匹）</option>
+        <option value="hard" data-i18n="hardOption">困难（不预置）</option>
     </select>
-    <button id="startBtn">开始 / 重新生成</button>
-    <button id="randomBtn">随机局号</button>
-    <button id="answerBtn">显示答案</button>
-    <button id="exportBtn" title="将当前棋盘（含标注）保存为 PNG 图片">导出图片</button>
+    <label for="langSelect" data-i18n="languageLabel">语言：</label>
+    <select id="langSelect">
+        <option value="zh_CN">简体中文</option>
+        <option value="en_US">English</option>
+    </select>
+    <button id="startBtn" data-i18n="startBtn">开始 / 重新生成</button>
+    <button id="randomBtn" data-i18n="randomBtn">随机局号</button>
+    <button id="answerBtn" data-i18n="showAnswer">显示答案</button>
+    <button id="exportBtn" data-i18n="exportBtn" data-i18n-title="exportBtnTitle"
+            title="将当前棋盘（含标注）保存为 PNG 图片">导出图片</button>
 </div>
 
 <div class="status">
-    <span>生命值：</span><span class="hearts" id="hearts"></span>
-    <span>用时：</span><span class="timer" id="timer">⏱ 00:00</span>
+    <span data-i18n="heartsLabel">生命值：</span><span class="hearts" id="hearts"></span>
+    <span data-i18n="timeLabel">用时：</span><span class="timer" id="timer">⏱ 00:00</span>
     <span id="progress"></span>
 </div>
 
@@ -63,17 +71,18 @@
         <h2 id="dialogTitle"></h2>
         <p id="dialogText"></p>
         <div class="dialog-actions">
-            <button type="button" id="retryBtn">重新开始</button>
-            <button type="button" id="newGameBtn">新开一局</button>
-            <button type="button" id="cancelBtn">取消</button>
+            <button type="button" id="retryBtn" data-i18n="retryBtn">重新开始</button>
+            <button type="button" id="newGameBtn" data-i18n="newGameBtn">新开一局</button>
+            <button type="button" id="cancelBtn" data-i18n="cancelBtn">取消</button>
         </div>
     </div>
 </div>
 
 <div class="answer-panel" id="answerPanel" hidden>
     <div class="answer-head">
-        <span>答案 · <span id="answerId"></span></span>
-        <button type="button" class="answer-close" id="answerClose" aria-label="关闭答案">✕</button>
+        <span data-i18n="answerLabel">答案 · </span><span id="answerId"></span>
+        <button type="button" class="answer-close" id="answerClose"
+                data-i18n-aria-label="closeAnswer" aria-label="关闭答案">✕</button>
     </div>
     <div class="answer-grid" id="answerGrid"></div>
 </div>
