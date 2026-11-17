@@ -76,8 +76,8 @@ knight-puzzle-game/
 │   ├── i18n.js               # 语言包加载与切换
 │   ├── zh_CN.js              # 简体中文语言包
 │   └── en_US.js              # 英文语言包（回退语言）
-├── README.md                 # 中文说明
-├── README.en.md              # 英文说明
+├── README.md                 # 英文说明
+├── README.zh.md              # 中文说明
 └── LICENSE                   # MIT License
 ```
 
